@@ -60,7 +60,7 @@ $(document).ready(function()
                 video.play();
 
                 notifyUser("User_id " + message.user_id + " played the video.");
-            break;
+                break;
 
             case "pause":
 				sendperm = false;
@@ -68,24 +68,23 @@ $(document).ready(function()
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " paused the video.");
-            break;
+                break;
 
             case "seeked":
 				sendperm = false;
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
-            break;
+                break;
 
             case "select":
                 video.src = message.video;
                 video.load();
 
                 notifyUser("User_id " + message.user_id + " selected the video: " + message.video, 'blue');
-            break;
+                break;
 			
 			case "syncRequest":
-            
                 if (sync == false && user_id == message.to_client)
                 {
                     websocket.send(JSON.stringify(
@@ -98,7 +97,7 @@ $(document).ready(function()
                         
                 }
                 notifyUser("User_id " + message.user_id + " Requested Synchronization");
-            break;
+                break;
 			
 			case "sync":
                 notifyUser("Yes")
@@ -119,11 +118,9 @@ $(document).ready(function()
                     {
                         video.play();
                     }
-					
-    
 				}
                 sync = false;
-            break;
+                break;
         }
     };
 

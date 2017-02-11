@@ -6,11 +6,12 @@ $(document).ready(function()
     var video = $('#sharedVideo').get(0);
     var user_id;
 	var sync = false;
-	var sendperm = true;
+	var play = false;
+	//var sendperm = true;
     video.preload = "auto";
     video.load();
 
-    subscribeEvents();
+    //subscribeEvents();
 
     websocket = new WebSocket('ws://' + hostname + ':' + port + '/'); 
 
@@ -49,29 +50,30 @@ $(document).ready(function()
             return;
         }
 
-
+        
         switch(action)
         {
             case "notifyUser":
                 notifyUser("Server: " + message.notice);
+                break;
             
             case "play":
-				sendperm = false;
-                video.play();
+				//sendperm = false;
+            	videopp("play")
 
                 notifyUser("User_id " + message.user_id + " played the video.");
                 break;
 
             case "pause":
-				sendperm = false;
-                video.pause();
+				//sendperm = false;
+            	videopp("pause")
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " paused the video.");
                 break;
 
             case "seeked":
-				sendperm = false;
+				//sendperm = false;
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
@@ -123,7 +125,7 @@ $(document).ready(function()
                 break;
         }
     };
-
+    
     $('#selectVideo').click(function()
     {
         video.src = $('#requestUrl').val();
@@ -153,15 +155,36 @@ $(document).ready(function()
 		
     });
 
-    function subscribeEvents()
+    $('#playpause').click(function()
+    {	
+	    play = !play;
+	    if (play){
+	    	videopp("play")
+	    	
+		   	websocket.send(JSON.stringify(
+		   	{
+		   		action: 'play',
+		   	}));
+	    }else{
+	    	videopp("pause");
+	    	
+	    	websocket.send(JSON.stringify(
+	    	{
+	    		action: 'pause',
+	    	    time: video.currentTime
+	    	}));
+	    }
+    });
+    
+    /*function subscribeEvents()
     {
         //notifyUser("on")
         $(video).on("play", onPlay);
         $(video).on("pause", onPause);
         $(video).on("seeked", onSeeked);
-    }
+    }*/
 
-    function onPause()
+    /*function onPause()
     {
 		if (sendperm){
 			websocket.send(JSON.stringify(
@@ -197,8 +220,26 @@ $(document).ready(function()
 		}else{
 			sendperm = true;
 		}
-    }
+    }*/
 
+    function videopp(act)
+    {
+    	switch(act)
+    	{
+    		case "play":
+    			video.play();
+    			document.getElementById("playpauseicon").className = "glyphicon glyphicon-pause";
+    			play = true;
+    			break;
+    		
+    		case "pause":
+    			video.pause();
+    			document.getElementById("playpauseicon").className = "glyphicon glyphicon-play";
+    			play = false;
+    			break;
+    	}
+    }
+    
     function notifyUser(message, color = 'black')
     {
         $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + message + '</p>');

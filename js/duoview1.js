@@ -14,13 +14,14 @@ $(document).ready(function()
 
     websocket = new WebSocket('ws://' + hostname + ':' + port + '/'); 
 
-    websocket.onopen = function(event) 
-    {
-        notifyUser("Listening for events at: " + event.currentTarget.url + ".");
-		websocket.send(JSON.stringify(
+    websocket.send(JSON.stringify(
         {
             action: 'joinsync',
         }));
+	
+    websocket.onopen = function(event) 
+    {
+        notifyUser("Listening for events at: " + event.currentTarget.url + ".");
     };
 
     websocket.onmessage = function(event) 

@@ -32,6 +32,7 @@ def got_message(client, server, message):
         return
 
     if action == "select":
+	global video
         server.send_message_to_all(json.dumps({"action": "select", "video": message["video"], "user_id": client["id"]}))
         video = message["video"]
         return

@@ -17,6 +17,10 @@ $(document).ready(function()
     websocket.onopen = function(event) 
     {
         notifyUser("Listening for events at: " + event.currentTarget.url + ".");
+		websocket.send(JSON.stringify(
+        {
+            action: 'joinsync',
+        }));
     };
 
     websocket.onmessage = function(event) 

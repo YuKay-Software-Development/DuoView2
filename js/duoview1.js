@@ -6,12 +6,11 @@ $(document).ready(function()
     var video = $('#sharedVideo').get(0);
     var user_id;
 	var sync = false;
-	var play = false;
-	//var sendperm = true;
+	var sendperm = true;
     video.preload = "auto";
     video.load();
 
-    //subscribeEvents();
+    subscribeEvents();
 
     websocket = new WebSocket('ws://' + hostname + ':' + port + '/'); 
 
@@ -50,43 +49,43 @@ $(document).ready(function()
             return;
         }
 
-        
+
         switch(action)
         {
             case "notifyUser":
                 notifyUser("Server: " + message.notice);
-                break;
             
             case "play":
-				//sendperm = false;
-            	videopp("play")
+				sendperm = false;
+                video.play();
 
                 notifyUser("User_id " + message.user_id + " played the video.");
-                break;
+            break;
 
             case "pause":
-				//sendperm = false;
-            	videopp("pause")
+				sendperm = false;
+                video.pause();
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " paused the video.");
-                break;
+            break;
 
             case "seeked":
-				//sendperm = false;
+				sendperm = false;
                 video.currentTime = message.time;
 
                 notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
-                break;
+            break;
 
             case "select":
                 video.src = message.video;
                 video.load();
 
                 notifyUser("User_id " + message.user_id + " selected the video: " + message.video, 'blue');
-                break;
+            break;
 			
 			case "syncRequest":
+            
                 if (sync == false && user_id == message.to_client)
                 {
                     websocket.send(JSON.stringify(
@@ -99,7 +98,7 @@ $(document).ready(function()
                         
                 }
                 notifyUser("User_id " + message.user_id + " Requested Synchronization");
-                break;
+            break;
 			
 			case "sync":
                 notifyUser("Yes")
@@ -120,12 +119,14 @@ $(document).ready(function()
                     {
                         video.play();
                     }
+					
+    
 				}
                 sync = false;
-                break;
+            break;
         }
     };
-    
+
     $('#selectVideo').click(function()
     {
         video.src = $('#requestUrl').val();
@@ -155,36 +156,15 @@ $(document).ready(function()
 		
     });
 
-    $('#playpause').click(function()
-    {	
-	    play = !play;
-	    if (play){
-	    	videopp("play")
-	    	
-		   	websocket.send(JSON.stringify(
-		   	{
-		   		action: 'play',
-		   	}));
-	    }else{
-	    	videopp("pause");
-	    	
-	    	websocket.send(JSON.stringify(
-	    	{
-	    		action: 'pause',
-	    	    time: video.currentTime
-	    	}));
-	    }
-    });
-    
-    /*function subscribeEvents()
+    function subscribeEvents()
     {
         //notifyUser("on")
         $(video).on("play", onPlay);
         $(video).on("pause", onPause);
         $(video).on("seeked", onSeeked);
-    }*/
+    }
 
-    /*function onPause()
+    function onPause()
     {
 		if (sendperm){
 			websocket.send(JSON.stringify(
@@ -220,26 +200,8 @@ $(document).ready(function()
 		}else{
 			sendperm = true;
 		}
-    }*/
-
-    function videopp(act)
-    {
-    	switch(act)
-    	{
-    		case "play":
-    			video.play();
-    			document.getElementById("playpauseicon").className = "glyphicon glyphicon-pause";
-    			play = true;
-    			break;
-    		
-    		case "pause":
-    			video.pause();
-    			document.getElementById("playpauseicon").className = "glyphicon glyphicon-play";
-    			play = false;
-    			break;
-    	}
     }
-    
+
     function notifyUser(message, color = 'black')
     {
         $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + message + '</p>');

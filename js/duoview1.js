@@ -13,17 +13,18 @@ $(document).ready(function()
     subscribeEvents();
 
     websocket = new WebSocket('ws://' + hostname + ':' + port + '/'); 
-
-    websocket.send(JSON.stringify(
-        {
-            action: 'joinsync',
-        }));
 	
     websocket.onopen = function(event) 
     {
         notifyUser("Listening for events at: " + event.currentTarget.url + ".");
+		
+		websocket.send(JSON.stringify({
+			action: 'joinsync',
+		}));
     };
 
+	
+	
     websocket.onmessage = function(event) 
     {
         var message = JSON.parse(event.data);

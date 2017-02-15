@@ -1,4 +1,4 @@
-var hostname = '5.189.165.114';
+var hostname = 'minecraft.yukay.info';
 var port = '9090';
 
 $(document).ready(function()
@@ -6,7 +6,9 @@ $(document).ready(function()
     var video = $('#sharedVideo').get(0);
     var user_id;
 	var sync = false;
-	var sendperm = true;
+	var sendpermplay = true;
+	var sendpermpause = true;
+	var sendpermseeked = true;
     video.preload = "auto";
     video.load();
 
@@ -17,10 +19,6 @@ $(document).ready(function()
     websocket.onopen = function(event) 
     {
         notifyUser("Listening for events at: " + event.currentTarget.url + ".");
-		
-		websocket.send(JSON.stringify({
-			action: 'joinsync',
-		}));
     };
 
 	
@@ -60,25 +58,23 @@ $(document).ready(function()
         {
             case "notifyUser":
                 notifyUser("Server: " + message.notice);
+			break;
             
             case "play":
-				sendperm = false;
-                video.play();
+                safeplay(video);
 
                 notifyUser("User_id " + message.user_id + " played the video.");
             break;
 
             case "pause":
-				sendperm = false;
-                video.pause();
-                video.currentTime = message.time;
+                safepause(video);
+                safetime(video, message.time);
 
                 notifyUser("User_id " + message.user_id + " paused the video.");
             break;
 
             case "seeked":
-				sendperm = false;
-                video.currentTime = message.time;
+                safetime(video, message.time);
 
                 notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
             break;
@@ -90,14 +86,13 @@ $(document).ready(function()
                 notifyUser("User_id " + message.user_id + " selected the video: " + message.video, 'blue');
             break;
 			
-			case "joinsync":
-                video.src = message.video;
-                video.load();
+			case "nosync":
+                sync = false;
+                notifyUser("Server: " + message.notice);
             break;
 			
 			case "syncRequest":
-            
-                if (sync == false && user_id == message.to_client)
+                if (sync == false)
                 {
                     websocket.send(JSON.stringify(
                     {
@@ -112,7 +107,6 @@ $(document).ready(function()
             break;
 			
 			case "sync":
-                notifyUser("Yes")
                 if (sync == true)
 				{
 					notifyUser("Synced with User_id" + message.user_id);
@@ -120,15 +114,14 @@ $(document).ready(function()
                     {
                         video.src = message.video;
                     }
-                    video.src = message.video;
-					video.currentTime = message.time;
-                    if (message.paused)
+					safetime(video, message.time);
+                    if (message.paused == true)
                     {
-                        video.pause();
+                        safepause(video);
                     }
-                    elseif (!message.paused)
+                    else if (message.paused == false)
                     {
-                        video.play();
+                        safeplay(video);
                     }
 					
     
@@ -177,41 +170,59 @@ $(document).ready(function()
 
     function onPause()
     {
-		if (sendperm){
+		if (sendpermpause){
 			websocket.send(JSON.stringify(
 			{
 				action: 'pause',
 				time: this.currentTime
 			}));
 		}else{
-			sendperm = true;
+			sendpermpause = true;
 		}
     }
 
     function onPlay()
     {
-		if (sendperm){
+		if (sendpermplay){
 			websocket.send(JSON.stringify(
 			{
 				action: 'play'
 			}));
 		}else{
-			sendperm = true;
+			sendpermplay = true;
 		}
     }
 
     function onSeeked()
     {
-		if (sendperm){
+		if (sendpermseeked){
 			websocket.send(JSON.stringify(
 			{
 				action: 'seeked',
 				time: this.currentTime
 			}));
 		}else{
-			sendperm = true;
+			sendpermseeked = true;
 		}
     }
+	
+	function safeplay(tvideo)
+	{
+		sendpermplay = false;
+		tvideo.play();
+	}
+	
+	function safepause(tvideo)
+	{
+		sendpermpause = false;
+		tvideo.pause();
+	}
+	
+	function safetime(tvideo, ttime)
+	{
+		sendpermseeked = false;
+		tvideo.currentTime = ttime;
+	}
 
     function notifyUser(message, color = 'black')
     {

@@ -89,6 +89,11 @@ $(document).ready(function()
                 notifyUser("User_id " + message.user_id + " selected the video: " + message.video, 'blue');
             break;
 			
+			case "joinsync":
+                video.src = message.video;
+                video.load();
+            break;
+			
 			case "syncRequest":
             
                 if (sync == false && user_id == message.to_client)

@@ -110,7 +110,7 @@ $(document).ready(function()
 			case "sync":
                 if (sync == true)
 				{
-					notifyUser("Synced with User_id" + message.user_id);
+					notifyUser("Synchronized with User_id" + message.user_id);
 					if (video.src != message.video)
                     {
                         video.src = message.video;

@@ -100,10 +100,9 @@ $(document).ready(function()
                         time: video.currentTime,
                         video: video.src,
                         paused: video.paused
-                    }));
-                        
-                }
-                notifyUser("User_id " + message.user_id + " Requested Synchronization");
+                    }));   
+					notifyUser("User_id " + message.user_id + " Requested Synchronization");
+				} else {sync = false;}
             break;
 			
 			case "sync":

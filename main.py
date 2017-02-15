@@ -1,4 +1,4 @@
-# Author: Trevi Awater & Luke Paris modified by Kayne Saridjo
+# Author: Trevi Awater & Luke Paris modified by Kayne Saridjo and Olivier Schipper
 
 import json
 
@@ -32,21 +32,23 @@ def got_message(client, server, message):
         return
 
     if action == "select":
-	global video
+        global video
         server.send_message_to_all(json.dumps({"action": "select", "video": message["video"], "user_id": client["id"]}))
         video = message["video"]
         return
-
-    if action == "joinsync":
-        server.send_message(client, json.dumps({"action": "joinsync", "video": video}))
-        return
-		
+      
     if action == "sync_request":
         global master
-        server.send_message_to_all(json.dumps({"action": "syncRequest", "to_client": master, "user_id": client["id"]}))
-        print("SyncedReq")
+        if master != 0:
+            try:
+                server.send_message(master, json.dumps({"action": "syncRequest", "user_id": client["id"]}))
+                print("SyncedReq")
+            except:
+                server.send_message(client, json.dumps({"action": "nosync", "notice": "Master has disconnected"}))
+        else:
+            server.send_message(client, json.dumps({"action": "nosync", "notice": "No master"}))
         return
-		
+        
     if action == "sync":
         print("Synced")
         server.send_message_to_all(json.dumps({"action": "sync", "time": message["time"], "video": message["video"], "paused": message["paused"], "user_id": client["id"]}))
@@ -54,8 +56,9 @@ def got_message(client, server, message):
     
     if action == "make_master":
         global master
-        master = client["id"]
+        master = client
         server.send_message_to_all(json.dumps({"action": "notifyUser", "notice": str(client["id"]) + " was assigned master"}))
+        print("User %s is now master" % master["id"])
         return
 
 server = WebsocketServer(9090, "0.0.0.0")

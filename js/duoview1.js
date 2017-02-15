@@ -61,20 +61,20 @@ $(document).ready(function()
 			break;
             
             case "play":
-                safeplay(video);
+                safePlay(video);
 
                 notifyUser("User_id " + message.user_id + " played the video.");
             break;
 
             case "pause":
-                safepause(video);
+                safePause(video);
                 safetime(video, message.time);
 
                 notifyUser("User_id " + message.user_id + " paused the video.");
             break;
 
             case "seeked":
-                safetime(video, message.time);
+                safeTime(video, message.time);
 
                 notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
             break;
@@ -92,18 +92,19 @@ $(document).ready(function()
             break;
 			
 			case "syncRequest":
-                if (sync == false)
+                websocket.send(JSON.stringify(
                 {
-                    websocket.send(JSON.stringify(
-                    {
-                        action: 'sync',
-                        time: video.currentTime,
-                        video: video.src,
-                        paused: video.paused
-                    }));
-                        
-                }
-                notifyUser("User_id " + message.user_id + " Requested Synchronization");
+                    action: 'sync',
+                    time: video.currentTime,
+                    video: video.src,
+                    paused: video.paused
+                }));   
+				notifyUser("User_id " + message.user_id + " Requested Synchronization");
+			break;
+				
+			case "dummy":
+				sync = false;
+				notifyUser("You can't sync with yourself, dummy!", "red");	
             break;
 			
 			case "sync":
@@ -114,17 +115,15 @@ $(document).ready(function()
                     {
                         video.src = message.video;
                     }
-					safetime(video, message.time);
+					safeTime(video, message.time);
                     if (message.paused == true)
                     {
-                        safepause(video);
+                        safePause(video);
                     }
                     else if (message.paused == false)
                     {
-                        safeplay(video);
+                        safePlay(video);
                     }
-					
-    
 				}
                 sync = false;
             break;
@@ -206,19 +205,19 @@ $(document).ready(function()
 		}
     }
 	
-	function safeplay(tvideo)
+	function safePlay(tvideo)
 	{
 		sendpermplay = false;
 		tvideo.play();
 	}
 	
-	function safepause(tvideo)
+	function safePause(tvideo)
 	{
 		sendpermpause = false;
 		tvideo.pause();
 	}
 	
-	function safetime(tvideo, ttime)
+	function safeTime(tvideo, ttime)
 	{
 		sendpermseeked = false;
 		tvideo.currentTime = ttime;

@@ -5,10 +5,12 @@ $(document).ready(function()
 {
     var video = $('#sharedVideo').get(0);
     var user_id;
+	var name;
 	var sync = false;
 	var sendpermplay = true;
 	var sendpermpause = true;
 	var sendpermseeked = true;
+	var receive = true;
     video.preload = "auto";
     video.load();
 
@@ -38,7 +40,8 @@ $(document).ready(function()
         if(user_id == undefined)
         {
             user_id = message.user_id;
-			$('#Id').text("User_ID " + user_id);
+			name = message.name;
+			$('#Id').text(name);
             
             sync = true;
             websocket.send(JSON.stringify(
@@ -47,43 +50,36 @@ $(document).ready(function()
             }));
         }
 
-        if(user_id == message.user_id)
-        {
-			$('#Id').text("User_ID " + user_id);
-            return;
-        }
-
-
         switch(action)
         {
             case "notifyUser":
-                notifyUser("Server: " + message.notice);
+                notifyUser(message.notice);
 			break;
             
             case "play":
                 safePlay(video);
 
-                notifyUser("User_id " + message.user_id + " played the video.");
+                notifyUser(message.name + " played the video.");
             break;
 
             case "pause":
                 safePause(video);
-                safetime(video, message.time);
+                safeTime(video, message.time);
 
-                notifyUser("User_id " + message.user_id + " paused the video.");
+                notifyUser(message.name + " paused the video.");
             break;
 
             case "seeked":
                 safeTime(video, message.time);
 
-                notifyUser("User_id " + message.user_id + " seeked the video to " + message.time + ".");
+                notifyUser(message.name + " seeked the video to " + message.time + ".");
             break;
 
             case "select":
                 video.src = message.video;
                 video.load();
 
-                notifyUser("User_id " + message.user_id + " selected the video: " + message.video, 'blue');
+                notifyUser(message.name + " selected the video: " + message.video, 'blue');
             break;
 			
 			case "nosync":
@@ -99,7 +95,7 @@ $(document).ready(function()
                     video: video.src,
                     paused: video.paused
                 }));   
-				notifyUser("User_id " + message.user_id + " Requested Synchronization");
+				notifyUser(message.name + " Requested Synchronization");
 			break;
 				
 			case "dummy":
@@ -110,7 +106,7 @@ $(document).ready(function()
 			case "sync":
                 if (sync == true)
 				{
-					notifyUser("Synchronized with User_id" + message.user_id);
+					notifyUser("Synchronized with " + message.name);
 					if (video.src != message.video)
                     {
                         video.src = message.video;
@@ -118,7 +114,7 @@ $(document).ready(function()
 					safeTime(video, message.time);
                     if (message.paused == true)
                     {
-                        safePause(video);
+                        video.pause();
                     }
                     else if (message.paused == false)
                     {
@@ -130,6 +126,18 @@ $(document).ready(function()
         }
     };
 
+	$('#changeName').click(function()
+    {
+        name = $('#nameInput').val();
+		$('#Id').text(name);
+		
+        websocket.send(JSON.stringify(
+        {
+            action: 'changeName',
+            name: name
+        }));
+    });
+	
     $('#selectVideo').click(function()
     {
         video.src = $('#requestUrl').val();
@@ -170,6 +178,7 @@ $(document).ready(function()
     function onPause()
     {
 		if (sendpermpause){
+			receive = false;
 			websocket.send(JSON.stringify(
 			{
 				action: 'pause',
@@ -183,6 +192,7 @@ $(document).ready(function()
     function onPlay()
     {
 		if (sendpermplay){
+			receive = false;
 			websocket.send(JSON.stringify(
 			{
 				action: 'play'
@@ -195,6 +205,7 @@ $(document).ready(function()
     function onSeeked()
     {
 		if (sendpermseeked){
+			receive = false;
 			websocket.send(JSON.stringify(
 			{
 				action: 'seeked',
@@ -207,20 +218,30 @@ $(document).ready(function()
 	
 	function safePlay(tvideo)
 	{
-		sendpermplay = false;
-		tvideo.play();
+		if (receive){
+			sendpermplay = false;
+			tvideo.play();
+		}else{
+			receive = true;
+		}
 	}
 	
 	function safePause(tvideo)
 	{
-		sendpermpause = false;
-		tvideo.pause();
+		if (receive){
+			sendpermpause = false;
+			tvideo.pause();
+		}
 	}
 	
 	function safeTime(tvideo, ttime)
 	{
-		sendpermseeked = false;
-		tvideo.currentTime = ttime;
+		if (receive){
+			sendpermseeked = false;
+			tvideo.currentTime = ttime;
+		}else{
+			receive = true;
+		}
 	}
 
     function notifyUser(message, color = 'black')

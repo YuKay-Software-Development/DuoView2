@@ -123,18 +123,35 @@ $(document).ready(function()
 				}
                 sync = false;
             break;
+			
+			case "chat":
+				notifyUser(message.name + ": " + message.message, "#BB00BB");	
+            break;
         }
     };
 
 	$('#changeName').click(function()
     {
         name = $('#nameInput').val();
+		$('#nameInput').val("");
 		$('#Id').text(name);
 		
         websocket.send(JSON.stringify(
         {
             action: 'changeName',
             name: name
+        }));
+    });
+	
+	$('#send').click(function send()
+    {
+        var chat = $('#chatInput').val();
+		$('#chatInput').val("");
+		
+        websocket.send(JSON.stringify(
+        {
+            action: 'chat',
+            message: chat
         }));
     });
 	
@@ -173,6 +190,8 @@ $(document).ready(function()
         $(video).on("play", onPlay);
         $(video).on("pause", onPause);
         $(video).on("seeked", onSeeked);
+		document.getElementById('chatInput').addEventListener('keypress', handleKeyPressChat);
+		document.getElementById('nameInput').addEventListener('keypress', handleKeyPressName);
     }
 
     function onPause()
@@ -241,6 +260,37 @@ $(document).ready(function()
 			tvideo.currentTime = ttime;
 		}else{
 			receive = true;
+		}
+	}
+	
+	function handleKeyPressChat(e)
+	{
+		if (e.keyCode == 13)
+		{
+			var chat = $('#chatInput').val();
+			$('#chatInput').val("");
+		
+			websocket.send(JSON.stringify(
+			{
+				action: 'chat',
+				message: chat
+			}));
+		}
+	}
+	
+	function handleKeyPressName(e)
+	{
+		if (e.keyCode == 13)
+		{
+			name = $('#nameInput').val();
+			$('#nameInput').val("");
+			$('#Id').text(name);
+		
+			websocket.send(JSON.stringify(
+			{
+				action: 'changeName',
+				name: name
+			}));
 		}
 	}
 

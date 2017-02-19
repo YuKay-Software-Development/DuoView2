@@ -92,6 +92,10 @@ def got_message(client, server, message):
         client["name"] = message["name"]
         users.append(client)
         return
+        
+    if action == "chat":
+        server.send_message_to_all(json.dumps({"action": "chat", "message": message["message"], "name": client["name"]}))
+        return
 
 server = WebsocketServer(9090, "0.0.0.0")
 server.set_fn_message_received(got_message)

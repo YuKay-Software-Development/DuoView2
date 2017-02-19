@@ -43,6 +43,8 @@ $(document).ready(function()
 			name = message.name;
 			$('#Id').text(name);
             
+			checkCookie();
+			
             sync = true;
             websocket.send(JSON.stringify(
             {
@@ -141,6 +143,10 @@ $(document).ready(function()
             action: 'changeName',
             name: name
         }));
+		
+		if (name != "" && name != null) {
+			setCookie("username", name, 365);
+		}
     });
 	
 	$('#send').click(function send()
@@ -291,6 +297,10 @@ $(document).ready(function()
 				action: 'changeName',
 				name: name
 			}));
+			
+			if (name != "" && name != null) {
+				setCookie("username", name, 365);
+			}
 		}
 	}
 
@@ -298,4 +308,37 @@ $(document).ready(function()
     {
         $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + message + '</p>');
     }
+	
+	function setCookie(cname, cvalue, exdays) {
+		document.cookie = cname + "=" + cvalue + "; max-age=" + 60 * 60 * 24 * exdays +";path=/";
+	}
+
+	function getCookie(cname) {
+		var name = cname + "=";
+		var ca = document.cookie.split(';');
+		for(var i = 0; i < ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0) == ' ') {
+				c = c.substring(1);
+			}
+			if (c.indexOf(name) == 0) {
+				return c.substring(name.length, c.length);
+			}
+		}
+		return "";
+	}
+
+	function checkCookie() {
+		var user = getCookie("username");
+		if (user != "") {
+			name = user
+			$('#Id').text(name);
+			
+			websocket.send(JSON.stringify(
+			{
+				action: 'changeName',
+				name: name
+			}));
+		}
+	}
 });

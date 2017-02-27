@@ -1,2 +1,0 @@
-# DuoView
-open index.html

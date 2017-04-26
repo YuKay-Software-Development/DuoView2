@@ -24,8 +24,9 @@ def new_client(client, server):
 def client_left(client, server):
     global users
     global master
-    server.send_message_to_all(json.dumps({"action": "notifyUser", "notice": client["name"] + " left the lobby"}))
     users.remove(client)
+    for c in users:
+        server.send_message(c, json.dumps({"action": "notifyUser", "notice": client["name"] + " left the lobby"}))
     if client == master:
         try:
             master = users[0]

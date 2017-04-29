@@ -81,6 +81,7 @@ $(document).ready(function()
                 video.src = message.video;
                 video.load();
 
+                notifyUser(message.name + " selected the video: " + message.video, '#2293ff');
             break;
 			
 			case "nosync":

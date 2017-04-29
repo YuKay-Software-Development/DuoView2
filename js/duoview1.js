@@ -1,4 +1,4 @@
-var hostname = 'minecraft.yukay.info';
+var hostname = '5.189.165.114';
 var port = '9090';
 
 $(document).ready(function()
@@ -81,7 +81,6 @@ $(document).ready(function()
                 video.src = message.video;
                 video.load();
 
-                notifyUser(message.name + " selected the video: " + message.video, 'blue');
             break;
 			
 			case "nosync":
@@ -127,7 +126,7 @@ $(document).ready(function()
             break;
 			
 			case "chat":
-				notifyUser(message.name + ": " + message.message, "#BB00BB");	
+				notifyUser(message.name + ": " + message.message, "#DD00DD");	
             break;
         }
     };
@@ -304,7 +303,7 @@ $(document).ready(function()
 		}
 	}
 
-    function notifyUser(message, color = 'black')
+    function notifyUser(message, color = '#999')
     {
         $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + message + '</p>');
     }

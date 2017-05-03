@@ -136,7 +136,7 @@ $(document).ready(function()
     {
         name = $('#nameInput').val();
 		$('#nameInput').val("");
-		$('#Id').text(name);
+		$('#Id').text(escapeHtml(name));
 		
         websocket.send(JSON.stringify(
         {
@@ -290,7 +290,7 @@ $(document).ready(function()
 		{
 			name = $('#nameInput').val();
 			$('#nameInput').val("");
-			$('#Id').text(name);
+			$('#Id').text(escapeHtml(name));
 		
 			websocket.send(JSON.stringify(
 			{
@@ -306,7 +306,7 @@ $(document).ready(function()
 
     function notifyUser(message, color = '#999')
     {
-        $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + message + '</p>');
+        $('#actions').prepend('<p style="color: ' + color + '; margin: 0px;">' + escapeHtml(message) + '</p>');
     }
 	
 	function setCookie(cname, cvalue, exdays) {
@@ -332,7 +332,7 @@ $(document).ready(function()
 		var user = getCookie("username");
 		if (user != "") {
 			name = user
-			$('#Id').text(name);
+			$('#Id').text(escapeHtml(name));
 			
 			websocket.send(JSON.stringify(
 			{
@@ -340,5 +340,35 @@ $(document).ready(function()
 				name: name
 			}));
 		}
+	}
+	
+	var escapeMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+	};
+	
+	var unescapeMap = {
+		"&amp;": "&",
+		"&lt;": "<",
+		"&gt;": ">",
+		'&quot;': '"',
+		'&#39;': "'",
+		'&#x2F;': "/"
+	};
+
+	function escapeHtml(unescapedValue) {
+		return unescapedValue.replace(/[&<>"'\/]/g, function (s) {
+			return escapeMap[s];
+		});
+	}
+
+	function unescapeHtml() {
+		notEscaped.value = String(escaped.value).replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g, function (s) {
+			return unescapeMap[s];
+		});
 	}
 });

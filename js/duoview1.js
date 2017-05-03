@@ -136,7 +136,7 @@ $(document).ready(function()
     {
         name = $('#nameInput').val();
 		$('#nameInput').val("");
-		$('#Id').text(escapeHtml(name));
+		$('#Id').text(name);
 		
         websocket.send(JSON.stringify(
         {
@@ -290,7 +290,7 @@ $(document).ready(function()
 		{
 			name = $('#nameInput').val();
 			$('#nameInput').val("");
-			$('#Id').text(escapeHtml(name));
+			$('#Id').text(name);
 		
 			websocket.send(JSON.stringify(
 			{
@@ -332,7 +332,7 @@ $(document).ready(function()
 		var user = getCookie("username");
 		if (user != "") {
 			name = user
-			$('#Id').text(escapeHtml(name));
+			$('#Id').text(name);
 			
 			websocket.send(JSON.stringify(
 			{
@@ -366,8 +366,8 @@ $(document).ready(function()
 		});
 	}
 
-	function unescapeHtml() {
-		notEscaped.value = String(escaped.value).replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g, function (s) {
+	function unescapeHtml(escapedValue) {
+		return escapedValue.replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&#x2F;/g, function (s) {
 			return unescapeMap[s];
 		});
 	}

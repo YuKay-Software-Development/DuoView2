@@ -67,7 +67,10 @@ def got_message(client, server, message):
     if action == "sync_request":
         if master != 0:
             if client == master:
-                server.send_message(master, json.dumps({"action": "dummy"}))
+                for c in users:
+                    if not c == master:
+                        server.send_message(c, json.dumps({"action": "forceSync"}))
+                server.send_message(master, json.dumps({"action": "notifyUser", "notice": "Forcing everyone to sync with master"}))
             else:
                 try:
                     server.send_message(master, json.dumps({"action": "syncRequest", "name": client["name"]}))

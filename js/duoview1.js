@@ -98,11 +98,15 @@ $(document).ready(function()
                     paused: video.paused
                 }));   
 				notifyUser(message.name + " Requested Synchronization");
+				sync = false;
 			break;
 				
-			case "dummy":
-				sync = false;
-				notifyUser("You can't sync with yourself, dummy!", "red");	
+			case "forceSync":
+				sync = true;
+				websocket.send(JSON.stringify(
+				{
+					action: 'sync_request',
+				}));
             break;
 			
 			case "sync":
